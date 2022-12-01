@@ -71,48 +71,12 @@ def set_src_mat():
         if len(line) > mat_w:
             mat_w = len(line)
 
+    # paddington
     for line in src_lines:
-        row = list()
-        i = 0
-        while i < len(line):
-            if line[i] == '\t':
-                raise Exception("Tabs are perilous")
-            if line[i].isdigit():
-                row.append(int(line[i]))
-                i += 1
-                continue
-            if line[i] == '"':
-                row.append(' ')
-                i += 1
-                while line[i] != '"':
-                    if line[i] == '\\':
-                        row.append(' ')
-                        i += 1
-                        row.append(esc_ord(line[i]))
-                        i += 1
-                        continue
-                    row.append(ord(line[i]))
-                    i += 1
-                row.append(' ')
-                i += 1
-                continue
-            row.append(line[i])
-            i += 1
-        # paddington
-        row += ' ' * (mat_w - len(line))
-        src_mat.append(row)
-
+        if '\t' in line:
+            raise Exception("Tabs are perilous")
+        src_mat.append(line + ' ' * (mat_w - len(line)))
     mat_h = len(src_mat)
-
-
-def esc_ord(char):
-    if char == '\\':
-        return ord('\\')
-    if char == '"':
-        return ord('"')
-    if char == 'n':
-        return ord('\n')
-    raise Exception(f"not an escape sequence: '\\{char}'")
 
 
 def print_src_mat():
@@ -121,52 +85,50 @@ def print_src_mat():
             print(f"{char:>3}|", end="")
         print()
 
-
-def debug_src_mat():
-    r, c = 0, 0
-    while True:
-        if src_mat[r][c] not in no_ops:
-            print(f"\nline: {r+1}, col: {c+1}")
-            print("'", src_mat[r][c], "'", sep="")
-            d = input()
-            if d == 'q':
-                break
-            if d == 'ps':
-                print(stack)
-                continue
-            if d == 'ph':
-                print(heap)
-                continue
-            if d not in ['', 's', 'n']:
-                print(f"Not a debug action: {d}")
-                continue
-        char = src_mat[r][c]
-        actions.get(char, lambda: stack.append(char))()
-        r += dir[0]
-        c += dir[1]
-        if r == mat_h or r < 0 or c == mat_w or c < 0:
-            print("Execution ended")
-
 def exec_src_mat():
-    r, c = 0, 0
+    escaped = False
+    in_quotes = False
+
+    r, c = (0, -1) # >
     while True:
-        char = src_mat[r][c]
-        actions.get(char, lambda: stack.append(char))()
         r += dir[0]
         c += dir[1]
         if r == mat_h or r < 0 or c == mat_w or c < 0:
-            return
+            sys.exit(stack[-1])
+        char = src_mat[r][c]
+        if in_quotes:
+            if char == '\\':
+                if not escaped:
+                    escaped = True
+                    continue
+                stack.append(ord('\\'))
+                escaped = False
+                continue
+            if char == '"':
+                if not escaped:
+                    in_quotes = False
+                    continue
+                stack.append(ord('"'))
+                escaped = False
+                continue
+            if char == 'n' and escaped:
+                stack.append(ord('\n'))
+                escaped = False
+                continue
+            stack.append(ord(char))
+            continue
+        if char == '"':
+            in_quotes = True
+            continue
+        if char.isdigit():
+            stack.append(int(char))
+            continue
+        actions.get(char, lambda: stack.append(char))()
 
 
 if __name__ == "__main__":
     if len(sys.argv) == 2:
         set_src_mat()
         exec_src_mat()
-        sys.exit(stack[-1])
 
-    if len(sys.argv) == 3:
-        set_src_mat()
-        debug_src_mat()
-        sys.exit(stack[-1])
-
-    raise Exception(f"Usage: {sys.argv[0]} source_file [debug]")
+    raise Exception(f"Usage: {sys.argv[0]} source_file")
