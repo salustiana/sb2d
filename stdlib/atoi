@@ -1,0 +1,14 @@
+0"521" v
+       |
+
+       >>    v Convert null terminated
+        ATOI | string to integer.
+       ||    | (0"521" -- 125)
+       ||    |
+       ||    0 <-retval
+       ||    |
+       ||    v ============= <
+       ||                    |
+       ||    s               |
+                             |
+       <<  # T "0"- s 2*5* + ^
