@@ -11,6 +11,7 @@ mat_w = 0
 mat_h = 0
 dir = RIGHT
 stack = list()
+aux_stack = list()
 heap = dict()
 no_ops = [' ', '=', '|']
 
@@ -34,6 +35,12 @@ def getchar():
         stack.append(-1)
     else:
         stack.append(ord(c))
+
+def append_aux():
+    global stack, aux_stack
+
+    stack += aux_stack
+    aux_stack = list()
 
 actions = {
     ' ': lambda: None,
@@ -62,6 +69,10 @@ actions = {
     'o': lambda: stack.append(stack[-2]),
     '#': lambda: stack.pop(),
     'r': lambda: stack.append(stack.pop(-3)),
+    '}': lambda: aux_stack.append(stack.pop()),
+    '{': lambda: stack.append(aux_stack.pop()),
+    ';': lambda: stack.append(aux_stack[-1]),
+    'A': append_aux,
 }
 
 def set_src_mat():

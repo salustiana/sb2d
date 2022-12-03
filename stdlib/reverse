@@ -1,0 +1,9 @@
+0"abcd" v
+        |
+
+        >>       v Reverse a null
+         REVERSE | prefixed string.
+        ||       | (0abcd -- 0dcba)
+        ||
+        ||       v   <
+  ....  << A === T } ^
