@@ -105,6 +105,7 @@ def print_src_mat():
 def exec_src_mat():
     escaped = False
     in_quotes = False
+    in_under = False
 
     r, c = (0, -1) # >
     while True:
@@ -134,8 +135,22 @@ def exec_src_mat():
                 continue
             stack.append(ord(char))
             continue
+        if in_under:
+            if char == '_':
+                in_under = False
+                if dir in [RIGHT, DOWN]:
+                    stack.append(word)
+                else:
+                    stack.append(word[::-1])
+                continue
+            word += char
+            continue
         if char == '"':
             in_quotes = True
+            continue
+        if char == "_":
+            in_under = True
+            word = ""
             continue
         if char.isdigit():
             stack.append(int(char))
