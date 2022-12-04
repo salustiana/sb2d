@@ -73,7 +73,7 @@ actions = {
     '{': lambda: stack.append(aux_stack.pop()),
     ';': lambda: stack.append(aux_stack[-1]),
     'A': append_aux,
-    'p': lambda: print(f"H: {heap}\nA: {aux_stack}\nS: {stack}"),
+    'p': lambda: print(f"H: {heap}\nA: {aux_stack}\nS: {stack}\n"),
 }
 
 def set_src_mat():
